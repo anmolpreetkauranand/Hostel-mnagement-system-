@@ -1,0 +1,183 @@
+create table student_n(
+roll_no number(20) primary key ,
+student_name varchar2(20) 
+);
+create table student_ph1(
+roll_no number(20) primary key  references student_n(roll_no),
+student_phone1 number(10) );
+create  table student_ph2(
+roll_no number(20) primary key  references student_n(roll_no),
+student_phone2 number(10) );
+create table student_r(
+roll_no number(20) primary key  references student_n(roll_no),
+student_room_no number(5));
+
+create table complaint_table(
+complaint_no number(10) primary key,
+roll_no number(20) references student_n(roll_no));
+
+create table complaint_info(
+complaint_no number(10) primary key references complaint_table(complaint_no),
+description varchar2(100),
+complaint_type varchar2(20));
+
+create table mess_table(
+sr_no number(10) primary key,
+roll_no number(20) references student_n(roll_no));
+
+create table mess_info(
+sr_no number(10) primary key references mess_table(sr_no),
+feedback varchar2(100));
+
+create table laundry_table(
+sr_no number(10) primary key,
+roll_no number(20) references student_n(roll_no));
+
+create table laundry_info(
+sr_no number(10) primary key references laundry_table(sr_no),
+given_on date,
+recieved_on date ,
+completed varchar2(1));
+
+
+PL/SQL
+------------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE insert_data (  
+roll student_n.roll_no%TYPE,  
+name student_n.student_name%TYPE,
+phone1 student_ph1.student_phone1%TYPE,
+phone2 student_ph2.student_phone1%TYPE,
+room student_r.student_room_no%TYPE)    
+IS  
+BEGIN  
+INSERT INTO student_n (roll_no, student_name)  
+VALUES (roll,name); 
+INSERT INTO student_ph1 (roll_no, student_phone1)  
+VALUES (roll,phone1); 
+INSERT INTO student_ph2 (roll_no, student_phone1)  
+VALUES (roll,phone2);
+INSERT INTO student_r(roll_no, student_room_no)  
+VALUES (roll,room);
+COMMIT;  
+END;
+/
+
+
+begin
+insert_data(102,'ramu',9863354,47534724,13);
+end;
+/
+
+select * from student_n;
+select * from student_ph1;
+select * from student_ph2;
+select * from student_r;
+create or replace procedure add_complaint(
+c_no complaint_table.complaint_no%type,
+roll complaint_table.roll_no%type,
+disc complaint_info.description%type,
+c_type complaint_info.complaint_type%type
+)
+is
+begin
+insert into complaint_table(complaint_no,roll_no)
+values(c_no,roll);
+insert into complaint_info(complaint_no,description,complaint_type)
+values(c_no,disc,c_type);
+commit;
+end;
+/
+/*
+begin
+add_complaint(122,102,'good service','mess');
+end;*/
+/
+
+select * from complaint_table;
+select * from complaint_info;
+/*
+create or replace procedure add_mess(
+sno mess_table.sr_no%type,
+roll mess_table.roll_no%type,
+feed mess_info.feedback%type
+)
+is
+begin
+insert into mess_table(sr_no,roll_no)
+values(sno,roll);
+insert into mess_info(sr_no,feedback)
+values(sno,feed);
+commit;
+end;
+
+/
+
+begin
+add_mess(1,102,'v.good');
+end;
+/
+*/
+/*
+select * from mess_table;
+select * from mess_info;
+*/
+/*
+create or replace procedure add_mess(
+sno mess_table.sr_no%type,
+roll mess_table.roll_no%type,
+feed mess_info.feedback%type
+)
+is
+begin
+insert into mess_table(sr_no,roll_no)
+values(sno,roll);
+insert into mess_info(sr_no,feedback)
+values(sno,feed);
+commit;
+end;
+
+/
+*/
+declare 
+sno mess_table.sr_no%type;
+begin
+select max(sr_no)into sno from mess_table;
+sno:=sno+1;
+add_mess(sno,102,'v.v.v.good');
+end;
+/
+
+
+select * from mess_table;
+select * from mess_info;
+
+
+create or replace procedure add_laundry(
+sno laundry_table.sr_no%type,
+roll laundry_table.roll_no%type,
+g_date laundry_info.given_on%type,
+r_date laundry_info.recieved_on%type,
+comp laundry_info.completed%type
+)
+is 
+begin
+insert into laundry_table(sr_no,roll_no)
+values(sno,roll);
+insert into laundry_info(sr_no,given_on,recieved_on,completed)
+values(sno,g_date,r_date,comp);
+commit;
+end;
+/
+
+declare
+sno laundry_table.sr_no%type;
+begin
+select max(sr_no) into sno from laundry_table;
+sno:=sno+1;
+add_laundry(sno,102,to_date('21-07-2002','dd-mm-yyyy'),to_date('22-07-2022','dd-mm-yyyy'),'y');
+end;
+/
+select * from laundry_table;
+select * from laundry_info;
+
+
